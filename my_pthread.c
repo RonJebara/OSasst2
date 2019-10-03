@@ -17,14 +17,13 @@ struct itimerval timer;
  * Pick the next runnable thread and swap contexts to start executing
  */
 void schedule(int signum){
+	//Needs alot of work. RN this just works for ThreadRun
 	if (alternate == 0){
-		printf("%s\n", "Switching to the child thread");
 		alternate++;
 		setup();		
 		swapcontext(&threads[0].context, &threads[i].context);
 	}
 	else if(alternate == 1){
-		printf("%s\n", "Switching to the parent thread");
 		alternate--;
 		setup();
 		swapcontext(&threads[i].context, &threads[0].context);
@@ -32,13 +31,13 @@ void schedule(int signum){
 }
 
 void setup(){
-	printf("%s\n", "Setting up timer");
+	//Dont touch this part
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = &schedule;
-        sigaction(SIGVTALRM, &sa, NULL);
+        sigaction(SIGPROF, &sa, NULL);
 	timer.it_value.tv_sec = 0;
 	timer.it_value.tv_usec = TIME_QUANTUM_MS;
-	setitimer(ITIMER_VIRTUAL, &timer, NULL);
+	setitimer(ITIMER_PROF, &timer, NULL);
 
  }
 
@@ -48,6 +47,7 @@ void setup(){
  * create a TCB for the main thread as well as initalize any scheduler state.
  */
 void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg){
+	//Creates the main thread
 	if (flag == false){
 		threads[0].tid = 0;
 		threads[0].status = RUNNABLE;
@@ -55,6 +55,7 @@ void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg)
 		threads[0].context = maincontext;
 		flag = true;
 	}
+	//Creates the first thread. Need to make another variable besided i to iterate through the array as i will become the variable that tracks what thread is executing
 	threads[i].tid = i; 
 	threads[i].status = RUNNABLE;
 	getcontext(&temp);

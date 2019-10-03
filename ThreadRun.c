@@ -15,7 +15,7 @@ int main(){
   my_pthread_create(&thread, (void*) thread_run, (void*) NULL);
 
   while(1){
-    printf("Main Thread Running\n");
+   printf("Main Thread Running\n");
   }
 
 }
