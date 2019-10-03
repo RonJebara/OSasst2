@@ -1,12 +1,13 @@
 #include "my_pthread.h"
 
 my_pthread_tcb threads[15];
-//memset(threads, 0, (size_t) sizeof(my_pthread_tcb) * 15 );
-int i = 0;
+int i = 1;
+bool flag = false;
 int alternate = 0;
 ucontext_t temp, maincontext;
 struct sigaction sa;
 struct itimerval timer;
+
 /* Scheduler State */
  // Fill in Here //
 
@@ -17,16 +18,21 @@ struct itimerval timer;
  */
 void schedule(int signum){
 	if (alternate == 0){
-		alternate++;		
-		swapcontext(&maincontext, &threads[i].context);
+		printf("%s\n", "Switching to the child thread");
+		alternate++;
+		setup();		
+		swapcontext(&threads[0].context, &threads[i].context);
 	}
 	else if(alternate == 1){
+		printf("%s\n", "Switching to the parent thread");
 		alternate--;
-		swapcontext(&threads[i].context, &maincontext);
+		setup();
+		swapcontext(&threads[i].context, &threads[0].context);
 	}
 }
 
 void setup(){
+	printf("%s\n", "Setting up timer");
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = &schedule;
         sigaction(SIGVTALRM, &sa, NULL);
@@ -41,7 +47,14 @@ void setup(){
  * of runnable threads. If this is the first time a thread is created, also
  * create a TCB for the main thread as well as initalize any scheduler state.
  */
-void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg){	
+void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg){
+	if (flag == false){
+		threads[0].tid = 0;
+		threads[0].status = RUNNABLE;
+		getcontext(&maincontext);
+		threads[0].context = maincontext;
+		flag = true;
+	}
 	threads[i].tid = i; 
 	threads[i].status = RUNNABLE;
 	getcontext(&temp);

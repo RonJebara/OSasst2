@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <ucontext.h>
+#include <stdbool.h>
 
 #define TIME_QUANTUM_MS 500000 // Time quantum in microseconds
 
