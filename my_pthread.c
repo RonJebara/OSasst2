@@ -2,6 +2,7 @@
 
 my_pthread_tcb threads[15];
 int i = 1;
+int tempnum=0;
 bool flag = false;
 int alternate = 0;
 ucontext_t temp, maincontext;
@@ -18,16 +19,25 @@ struct itimerval timer;
  */
 void schedule(int signum){
 	//Needs alot of work. RN this just works for ThreadRun
-	if (alternate == 0){
-		alternate++;
-		setup();		
-		swapcontext(&threads[0].context, &threads[i].context);
+	setup();
+	alternate++;
+	tempnum=alternate-1;
+	if(threads[alternate].tid==-1){	//checks if next thread is invalid (end of list)
+	alternate=0;
+	swapcontext(&threads[tempnum].context, &threads[alternate].context);
 	}
-	else if(alternate == 1){
-		alternate--;
-		setup();
-		swapcontext(&threads[i].context, &threads[0].context);
+	else{ //next thread is valid
+		if(threads[alternate].status==FINISHED){ //checks to next thread can be ran
+			while(threads[alternate].status!=RUNNABLE){//looks for the next runnable threadl
+			alternate++;
+				if(threads[alternate].tid==-1){
+				alternate=0;
+				}
+			}
+		}	
+	swapcontext(&threads[tempnum].context, &threads[alternate].context);
 	}
+	
 }
 
 void setup(){
@@ -56,7 +66,8 @@ void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg)
 		flag = true;
 	}
 	//Creates the first thread. Need to make another variable besided i to iterate through the array as i will become the variable that tracks what thread is executing
-	threads[i].tid = i; 
+	threads[i].tid = i;
+	threads[i+1].tid=-1; 
 	threads[i].status = RUNNABLE;
 	getcontext(&temp);
 	temp.uc_link = 0;
@@ -65,6 +76,7 @@ void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg)
 	makecontext(&temp, function, 0);
 	threads[i].context = temp;
 	thread = &threads[i].tid;
+	i++;
 	schedule(0);
 }
 
@@ -80,9 +92,16 @@ void my_pthread_yield(){
  * has finished executing.
  */
 void my_pthread_join(my_pthread_t thread){
-
+	while(1){ //repeats
+	if(threads[thread].status==RUNNABLE){ //checks for status
+		printf("\n\n\n\nhere\n\n\n\n");
+		tempnum=alternate;
+		alternate=thread;
+		swapcontext(&threads[thread].context,&threads[tempnum].context);} //sets the context back to thread
+	else{
+	return;}
   // Implement Here //
-
+	}
 }
 
 
@@ -92,7 +111,7 @@ my_pthread_t my_pthread_self(){
 
   // Implement Here //
 
-  return 0; // temporary return, replace this
+  return threads[alternate].tid; // altnernate should be set to current thread
 
 }
 
@@ -102,5 +121,6 @@ my_pthread_t my_pthread_self(){
 void my_pthread_exit(){
 
   // Implement Here //
-
+	threads[alternate].status=FINISHED;
+	schedule(1);
 }
