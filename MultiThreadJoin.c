@@ -6,7 +6,7 @@
 
 void thread_run(){
   int x = 0;
-  for(x = 0; x < 5000; x++){
+  for(x = 0; x < 1000000; x++){
     printf("Thread %d Running\n", my_pthread_self());
   }
   printf("Thread %d Finished\n", my_pthread_self());

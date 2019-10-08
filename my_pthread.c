@@ -23,8 +23,8 @@ void schedule(int signum){
 	alternate++;
 	tempnum=alternate-1;
 	if(threads[alternate].tid==-1){	//checks if next thread is invalid (end of list)
-	alternate=0;
-	swapcontext(&threads[tempnum].context, &threads[alternate].context);
+		alternate=0;
+		swapcontext(&threads[tempnum].context, &threads[alternate].context);
 	}
 	else{ //next thread is valid
 		if(threads[alternate].status==FINISHED){ //checks to next thread can be ran
@@ -34,7 +34,8 @@ void schedule(int signum){
 				alternate=0;
 				}
 			}
-		}	
+		}
+	printf("Or here\n");	
 	swapcontext(&threads[tempnum].context, &threads[alternate].context);
 	}
 	
@@ -83,7 +84,7 @@ void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg)
 /* Give up the CPU and allow the next thread to run.
  */
 void my_pthread_yield(){
-
+	schedule(0);
   // Implement Here
 
 }
@@ -93,7 +94,6 @@ void my_pthread_yield(){
  */
 void my_pthread_join(my_pthread_t thread){
 	while(threads[thread].status==RUNNABLE){ //repeats
-		schedule(0);
 /*	if(threads[thread].status==RUNNABLE){ //checks for status
 		tempnum=alternate;
 		alternate=thread;
