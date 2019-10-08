@@ -18,6 +18,7 @@ int main(){
   my_pthread_t thread;
 
   my_pthread_create(&thread, (void*)thread_run, (void*)NULL);
+
   my_pthread_join(thread);
 
   printf("Main Thread Resuming\n");

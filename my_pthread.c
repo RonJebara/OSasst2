@@ -76,7 +76,6 @@ void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg)
 	makecontext(&temp, function, 0);
 	threads[i].context = temp;
 	*thread = threads[i].tid;
-	printf("%d\n", thread);
 	i++;
 	schedule(0);
 }
@@ -94,7 +93,6 @@ void my_pthread_yield(){
  */
 void my_pthread_join(my_pthread_t thread){
 	while(threads[thread].status==RUNNABLE){ //repeats
-		printf("%s\n", "In the while loop");
 		schedule(0);
 /*	if(threads[thread].status==RUNNABLE){ //checks for status
 		tempnum=alternate;
