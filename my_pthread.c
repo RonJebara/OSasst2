@@ -75,7 +75,8 @@ void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg)
 	temp.uc_stack.ss_size = 32768;
 	makecontext(&temp, function, 0);
 	threads[i].context = temp;
-	thread = &threads[i].tid;
+	*thread = threads[i].tid;
+	printf("%d\n", thread);
 	i++;
 	schedule(0);
 }
@@ -92,14 +93,15 @@ void my_pthread_yield(){
  * has finished executing.
  */
 void my_pthread_join(my_pthread_t thread){
-	while(1){ //repeats
-	if(threads[thread].status==RUNNABLE){ //checks for status
-		printf("\n\n\n\nhere\n\n\n\n");
+	while(threads[thread].status==RUNNABLE){ //repeats
+		printf("%s\n", "In the while loop");
+		schedule(0);
+/*	if(threads[thread].status==RUNNABLE){ //checks for status
 		tempnum=alternate;
 		alternate=thread;
 		swapcontext(&threads[thread].context,&threads[tempnum].context);} //sets the context back to thread
 	else{
-	return;}
+	return;} */ 
   // Implement Here //
 	}
 }
