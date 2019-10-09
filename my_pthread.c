@@ -34,8 +34,7 @@ void schedule(int signum){
 				alternate=0;
 				}
 			}
-		}
-	printf("Or here\n");	
+		}	
 	swapcontext(&threads[tempnum].context, &threads[alternate].context);
 	}
 	
@@ -78,7 +77,7 @@ void my_pthread_create(my_pthread_t *thread, void*(*function)(void*), void *arg)
 	threads[i].context = temp;
 	*thread = threads[i].tid;
 	i++;
-	schedule(0);
+	setup();
 }
 
 /* Give up the CPU and allow the next thread to run.
